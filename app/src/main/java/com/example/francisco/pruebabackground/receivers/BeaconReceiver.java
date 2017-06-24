@@ -8,7 +8,7 @@ import android.os.Bundle;
 
 public class BeaconReceiver extends BroadcastReceiver {
 
-    public static final String ACTION_BEACON = "com.example.francisco.appubicuas.BEACON_ENCONTRADO";
+    public static final String ACTION_BEACON = "com.example.francisco.pruebabackground.ACTION_BEACONS";
     public static final String EXTRA_MAJOR = "major";
     public static final String EXTRA_MINOR = "minor";
 
