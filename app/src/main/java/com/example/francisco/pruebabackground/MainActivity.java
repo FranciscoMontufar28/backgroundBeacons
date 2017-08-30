@@ -1,52 +1,33 @@
 package com.example.francisco.pruebabackground;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-import android.media.MediaScannerConnection;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.estimote.sdk.Beacon;
-import com.estimote.sdk.BeaconManager;
-import com.estimote.sdk.Region;
-import com.estimote.sdk.Utils;
+import com.example.francisco.pruebabackground.receivers.BeaconReceiver;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.UUID;
+import rx.Observable;
+import rx.Subscriber;
 
 /**
  * MainActivity class
  * Implements a PebbleDataLogReceiver to process received log data,
  * as well as a finished session.
  */
-public class MainActivity extends Activity implements View.OnClickListener{
+public class MainActivity extends Activity implements View.OnClickListener, BeaconReceiver.OnBeaconListener{
 
     Button iniciar, terminar;
+    BeaconReceiver receiver;
+    TextView Tmajor1, Tmajor2, Tminor1, Tminor2;
+    String major1, major2, minor2, minor1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +37,18 @@ public class MainActivity extends Activity implements View.OnClickListener{
         iniciar = (Button) findViewById(R.id.iniciar);
         terminar = (Button) findViewById(R.id.terminar);
 
+        Tmajor1= (TextView) findViewById(R.id.major1);
+        Tmajor2= (TextView) findViewById(R.id.major2);
+        Tminor1 = (TextView) findViewById(R.id.minor1);
+        Tminor2 = (TextView) findViewById(R.id.minor2);
+
+
         iniciar.setOnClickListener(this);
         terminar.setOnClickListener(this);
+
+        //receiver = new BeaconReceiver(this);
+        //IntentFilter filter = new IntentFilter(BeaconReceiver.ACTION_BEACON);
+        //registerReceiver(receiver, filter);
 
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         Log.d("LOG", "aplicacion iniciada");
@@ -93,13 +84,18 @@ public class MainActivity extends Activity implements View.OnClickListener{
     @Override
     public void onClick(View v) {
         Intent intent = new Intent(this, BeaconService.class);
-        startService(intent);
         switch (v.getId()) {
             case R.id.iniciar:
-
+                startService(intent);
+                receiver = new BeaconReceiver(this);
+                IntentFilter filter = new IntentFilter(BeaconReceiver.ACTION_BEACON);
+                Log.e("Reactive", "Filter: "+filter);
+                registerReceiver(receiver, filter);
                 break;
 
             case R.id.terminar:
+                Log.e("reactivex", "Terminar");
+                Toast.makeText(this,"", Toast.LENGTH_SHORT).show();
                 stopService(intent);
                 break;
         }
@@ -107,4 +103,18 @@ public class MainActivity extends Activity implements View.OnClickListener{
 
 
 }
+
+    @Override
+    public void onBeacon(int major, int minor,int major2, int minor2) {
+
+        Tmajor1.setText(""+major);
+        Tmajor2.setText(""+major2);
+        Tminor1.setText(""+minor);
+        Tminor2.setText(""+minor2);
+
+        Log.e("Reactivex", "valor reactive"+ major);
+
+
+
+    }
 }
