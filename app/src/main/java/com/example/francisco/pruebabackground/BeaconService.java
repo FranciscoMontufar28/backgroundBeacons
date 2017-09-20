@@ -1,5 +1,6 @@
 package com.example.francisco.pruebabackground;
 
+import android.app.IntentService;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Handler;
@@ -22,7 +23,6 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.UUID;
 
-import rx.Subscriber;
 
 /**
  * Created by jhovy on 30/03/2017.
@@ -53,13 +53,13 @@ public class BeaconService extends Service {
         PLACES_BY_BEACONS = Collections.unmodifiableMap(placesByBeacons);
     }
 
-    private List<String> placesNearBeacon(Beacon beacon) {
+    /*private List<String> placesNearBeacon(Beacon beacon) {
         String beaconKey = String.format("%d:%d", beacon.getMajor(), beacon.getMinor());
         if (PLACES_BY_BEACONS.containsKey(beaconKey)) {
             return PLACES_BY_BEACONS.get(beaconKey);
         }
         return Collections.emptyList();
-    }
+    }*/
 
     private BeaconManager beaconManager;
     private Region region;
@@ -95,17 +95,17 @@ public class BeaconService extends Service {
                         case 1:
                             //Log.e("Reactive", "case 2");
                             intent.putExtra(BeaconReceiver.EXTRA_MAJOR, nearestBeacon.getMajor());
-                            //intent.putExtra(BeaconReceiver.EXTRA_MINOR, nearestBeacon.getMinor());
+                            intent.putExtra(BeaconReceiver.EXTRA_MINOR, nearestBeacon.getMinor());
 
                             break;
                         case 2:
                             //Log.e("Reactive", "case 2");
                             Beacon nearestBeacon2 = list.get(1);
                             intent.putExtra(BeaconReceiver.EXTRA_MAJOR, nearestBeacon.getMajor());
-                            //intent.putExtra(BeaconReceiver.EXTRA_MINOR, nearestBeacon.getMinor());
+                            intent.putExtra(BeaconReceiver.EXTRA_MINOR, nearestBeacon.getMinor());
 /**************************************************************************************************************************/
                             intent.putExtra(BeaconReceiver.EXTRA_MAJOR2, nearestBeacon2.getMajor());
-                            //intent.putExtra(BeaconReceiver.EXTRA_MINOR2, nearestBeacon2.getMinor());
+                            intent.putExtra(BeaconReceiver.EXTRA_MINOR2, nearestBeacon2.getMinor());
                             break;
 
 
@@ -142,5 +142,10 @@ public class BeaconService extends Service {
 
 
         return super.onStartCommand(intent2, flags, startId);
+    }
+
+    @Override
+    public void onDestroy() {
+        beaconManager.disconnect();
     }
 }

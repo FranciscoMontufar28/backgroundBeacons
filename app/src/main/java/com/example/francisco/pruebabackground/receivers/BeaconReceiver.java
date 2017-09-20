@@ -6,8 +6,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-import rx.Observable;
-import rx.Subscriber;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
+
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.subjects.PublishSubject;
+import io.reactivex.subjects.Subject;
 
 
 public class BeaconReceiver extends BroadcastReceiver {
@@ -21,15 +28,14 @@ public class BeaconReceiver extends BroadcastReceiver {
     public static final String EXTRA_MINOR2 = "minor2";
 
 
+    PublishSubject<Integer[]> subject;
 
-    public interface OnBeaconListener{
-        void onBeacon(int major, int minor,int major2, int minor2);
-    }
 
-    OnBeaconListener onBeaconListener;
+    public BeaconReceiver() {
 
-    public BeaconReceiver(OnBeaconListener onBeaconListener) {
-        this.onBeaconListener = onBeaconListener;
+        subject = PublishSubject.create();
+        /*subject.distinctUntilChanged()
+                .subscribe(new Subscriber<Integer>())*/
     }
 
     @Override
@@ -40,9 +46,45 @@ public class BeaconReceiver extends BroadcastReceiver {
         int minor = extras.getInt(EXTRA_MINOR);
         int major2 = extras.getInt(EXTRA_MAJOR2);
         int minor2 = extras.getInt(EXTRA_MINOR2);
+
+        subject.onNext(new Integer[]{major, minor, major2, minor2});
+
+        /*Log.e("reactiveX", "dato 1 "+major);
+        Log.e("reactiveX", "dato 2 "+minor);
+        Log.e("reactiveX", "dato 3 "+major2);
+        Log.e("reactiveX", "dato 4 "+minor2);*/
+
+
+//                .subscribe(new Subscriber<Integer>() {
+//                    @Override
+//                    public void onSubscribe(Subscription s) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onNext(Integer integer)
+//                    {
+//                        subject.onNext(major);
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable t) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onComplete() {
+//
+//                    }
+//                })
+
+
         //Log.e("Reactivex", "onReceive"+ major);
 
 /************************************************************************************************************************************/
+
+
+
         /*Observable.just(major)
                         .distinctUntilChanged()
                         .subscribe(new Subscriber<Integer>() {
@@ -72,9 +114,13 @@ public class BeaconReceiver extends BroadcastReceiver {
 
 /************************************************************************************************************************************/
 
-    onBeaconListener.onBeacon(major, minor, major2, minor2);
+
 
     }
 
+
+    public PublishSubject<Integer[]> getBeaconNotify(){
+        return subject;
+    }
 
 }
